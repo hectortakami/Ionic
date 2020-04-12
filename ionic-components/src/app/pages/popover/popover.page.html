@@ -1,0 +1,25 @@
+<app-header pageTitle="Popover Component"></app-header>
+
+<ion-content>
+  <ion-content class="ion-padding">
+    <ion-button (click)="showPopover($event)" expand="block">
+      <ion-icon slot="start" name="information-circle-outline"></ion-icon>
+      Show Popover
+    </ion-button>
+  </ion-content>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="showPopover($event)">
+        <ion-icon slot="end" name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="start">
+      <ion-button (click)="showPopover($event)">
+        <ion-icon slot="start" name="information-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

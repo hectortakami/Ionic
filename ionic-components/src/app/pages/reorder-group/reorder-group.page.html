@@ -1,0 +1,15 @@
+<app-header pageTitle="Reorder Group"></app-header>
+
+<ion-content class="ion-padding">
+  <ion-button (click)="onClick()" expand="block">Toggle Items </ion-button>
+
+  <hr />
+  <ion-list>
+    <ion-reorder-group [disabled]="toggle" (ionItemReorder)="doReorder($event)">
+      <ion-item *ngFor="let item of heroes">
+        <ion-label>{{item}}</ion-label>
+        <ion-reorder slot="end"></ion-reorder>
+      </ion-item>
+    </ion-reorder-group>
+  </ion-list>
+</ion-content>

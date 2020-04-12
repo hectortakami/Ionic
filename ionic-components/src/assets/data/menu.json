@@ -1,0 +1,127 @@
+[
+  {
+    "icon": "caret-up-outline",
+    "name": "Action Sheet",
+    "redirectTo": "/action-sheet"
+  },
+  {
+    "icon": "alarm-outline",
+    "name": "Alert",
+    "redirectTo": "/alert"
+  },
+  {
+    "icon": "person-circle-outline",
+    "name": "Avatar",
+    "redirectTo": "/avatar"
+  },
+  {
+    "icon": "radio-button-on-outline",
+    "name": "Button",
+    "redirectTo": "/button"
+  },
+  {
+    "icon": "tablet-landscape-outline",
+    "name": "Card",
+    "redirectTo": "/card"
+  },
+  {
+    "icon": "checkbox-outline",
+    "name": "Checkbox",
+    "redirectTo": "/checkbox"
+  },
+  {
+    "icon": "calendar-outline",
+    "name": "Datetime Picker",
+    "redirectTo": "/date-time"
+  },
+  {
+    "icon": "add-circle-outline",
+    "name": "Floating Action Button",
+    "redirectTo": "/floating-action-button"
+  },
+  {
+    "icon": "clipboard-outline",
+    "name": "Input",
+    "redirectTo": "/input"
+  },
+  {
+    "icon": "infinite",
+    "name": "Infinite Scroll",
+    "redirectTo": "/infinite-scroll"
+  },
+  {
+    "icon": "arrow-undo-outline",
+    "name": "Item Sliding",
+    "redirectTo": "/item-sliding"
+  },
+  {
+    "icon": "list-outline",
+    "name": "List",
+    "redirectTo": "/list"
+  },
+  {
+    "icon": "sync-outline",
+    "name": "Loading",
+    "redirectTo": "/loading"
+  },
+  {
+    "icon": "alert-circle-outline",
+    "name": "Modal",
+    "redirectTo": "/modal"
+  },
+  {
+    "icon": "information-circle-outline",
+    "name": "Popover",
+    "redirectTo": "/popover"
+  },
+  {
+    "icon": "battery-half-outline",
+    "name": "Progress Bar",
+    "redirectTo": "/progress-bar"
+  },
+  {
+    "icon": "code-working-outline",
+    "name": "Range",
+    "redirectTo": "/range"
+  },
+  {
+    "icon": "refresh-circle-outline",
+    "name": "Refreshner",
+    "redirectTo": "/refreshner"
+  },
+  {
+    "icon": "reorder-four-outline",
+    "name": "Reorder Group",
+    "redirectTo": "/reorder-group"
+  },
+  {
+    "icon": "search-outline",
+    "name": "Search Bar",
+    "redirectTo": "/search-bar"
+  },
+  {
+    "icon": "scan-outline",
+    "name": "Segment",
+    "redirectTo": "/segment"
+  },
+  {
+    "icon": "skull-outline",
+    "name": "Skeleton Text",
+    "redirectTo": "/skeleton-text"
+  },
+  {
+    "icon": "images-outline",
+    "name": "Slides",
+    "redirectTo": "/slides"
+  },
+  {
+    "icon": "shapes-outline",
+    "name": "Tabs",
+    "redirectTo": "/tabs"
+  },
+  {
+    "icon": "star-outline",
+    "name": "Toast",
+    "redirectTo": "/toast"
+  }
+]

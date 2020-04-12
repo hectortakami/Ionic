@@ -1,0 +1,16 @@
+<app-header pageTitle="Checkbox Component"></app-header>
+
+<ion-content>
+  <ion-list>
+    <ion-list-header>Checkbox Overview</ion-list-header>
+    <ion-item *ngFor="let entry of entries">
+      <ion-label>{{entry.value}}</ion-label>
+      <ion-checkbox
+        color="{{entry.color}}"
+        [(ngModel)]="entry.isChecked"
+        slot="start"
+        [disabled]="entry.disabled"
+      ></ion-checkbox>
+    </ion-item>
+  </ion-list>
+</ion-content>

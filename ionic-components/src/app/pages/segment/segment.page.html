@@ -1,0 +1,25 @@
+<app-header pageTitle="Segment Component"></app-header>
+
+<ion-content class="ion-padding">
+  <ion-segment
+    (ionChange)="segmentChanged($event)"
+    color="tertiary"
+    value="All"
+  >
+    <ion-segment-button value="DC Comics">
+      <ion-label>DC Comics</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="All">
+      <ion-label>All</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="Marvel Comics">
+      <ion-label>Marvel Comics</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list style="margin-top: 1rem;">
+    <ion-item *ngFor="let hero of heroes | filter:segment:'publisher'">
+      <ion-label>{{hero.superhero}}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

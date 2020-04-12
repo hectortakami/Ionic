@@ -1,0 +1,29 @@
+<app-header pageTitle="Range Component"></app-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <ion-range value="50">
+        <ion-icon slot="start" size="small" name="sunny"></ion-icon>
+        <ion-icon slot="end" name="sunny"></ion-icon>
+      </ion-range>
+    </ion-item>
+  </ion-list>
+  <ion-list>
+    <ion-item>
+      <ion-range
+        [value]="range"
+        color="danger"
+        mode="md"
+        pin="true"
+        (ionChange)="changeRange($event)"
+      >
+        <ion-label slot="start">0</ion-label>
+        <ion-label slot="end">100</ion-label>
+      </ion-range>
+    </ion-item>
+    <ion-item>
+      <ion-progress-bar color="danger" [value]="range/100"></ion-progress-bar>
+    </ion-item>
+  </ion-list>
+</ion-content>

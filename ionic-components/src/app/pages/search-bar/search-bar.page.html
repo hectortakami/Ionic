@@ -1,0 +1,16 @@
+<app-header pageTitle="Search Bar Component"></app-header>
+
+<ion-content class="ion-padding">
+  <ion-searchbar
+    placeholder="Type something to search..."
+    inputmode="text"
+    type="text"
+    (ionChange)="onSearchChange($event)"
+  ></ion-searchbar>
+
+  <ion-list>
+    <ion-item *ngFor="let item of data | filter:term:'title'">
+      <ion-label>{{item.title}}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

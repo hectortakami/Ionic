@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Anything</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col size="12">
+        <ion-item>
+          <ion-label position="floating"
+            >What's your favorite planet?
+          </ion-label>
+          <ion-input [(ngModel)]="modalData"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="6">
+        <ion-button (click)="closeModal()" expand="block" color="danger">
+          Close Modal
+        </ion-button>
+      </ion-col>
+      <ion-col size="6">
+        <ion-button (click)="sendModal()" expand="block" color="primary">
+          Save
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

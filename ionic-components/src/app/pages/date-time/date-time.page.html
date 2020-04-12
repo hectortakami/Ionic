@@ -1,0 +1,33 @@
+<app-header pageTitle="Datetime Picker Component"></app-header>
+
+<ion-content class="ion-padding">
+  <ion-item>
+    <ion-label>Month ( full )</ion-label>
+    <ion-datetime
+      displayFormat="MMMM"
+      placeholder="Select Month"
+    ></ion-datetime>
+  </ion-item>
+  <ion-item>
+    <ion-label>Month ( spanish )</ion-label>
+    <ion-datetime
+      displayFormat="MMMM"
+      placeholder="Selecciona Mes"
+      monthNames="Enero, Febrero, Marzo, Abril, Mayo, Junio, Julio, Agosto, Septiembre, Octubre, Noviembre, Diciembre"
+    ></ion-datetime>
+  </ion-item>
+  <ion-item>
+    <ion-label>Day - Month ( short ) - Year</ion-label>
+    <ion-datetime
+      displayFormat="DD-MM-YYYY"
+      placeholder="Select Date"
+    ></ion-datetime>
+  </ion-item>
+  <ion-item>
+    <ion-label> Hour : Minutes : Seconds</ion-label>
+    <ion-datetime
+      displayFormat="HH:mm:ss"
+      placeholder="Select Time"
+    ></ion-datetime>
+  </ion-item>
+</ion-content>

@@ -1,0 +1,28 @@
+<app-header pageTitle="Avatar Component"></app-header>
+
+<ion-content class="ion-padding">
+  <h3>Default Avatar</h3>
+  <ion-avatar>
+    <img
+      src="https://vignette.wikia.nocookie.net/gravityfalls/images/0/09/S1e18_Waddles_stare.png/revision/latest/top-crop/width/360/height/360?cb=20160119145820"
+    />
+  </ion-avatar>
+  <hr />
+  <ion-chip>
+    <ion-avatar>
+      <img
+        src="https://vignette.wikia.nocookie.net/gravityfalls/images/0/09/S1e18_Waddles_stare.png/revision/latest/top-crop/width/360/height/360?cb=20160119145820"
+      />
+    </ion-avatar>
+    <ion-label>Chip Avatar</ion-label>
+  </ion-chip>
+  <hr />
+  <ion-item *ngFor="let item of [1,2,3,4,5,6,7,8,9,0]">
+    <ion-avatar slot="start">
+      <img
+        src="https://vignette.wikia.nocookie.net/gravityfalls/images/0/09/S1e18_Waddles_stare.png/revision/latest/top-crop/width/360/height/360?cb=20160119145820"
+      />
+    </ion-avatar>
+    <ion-label>Item Avatar</ion-label>
+  </ion-item>
+</ion-content>
