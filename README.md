@@ -882,3 +882,28 @@ async showToast() {
     toast.present();
   }
 ```
+
+## Run iOS
+
+1. Confirm or install XCode command line tools `xcode-select --install`
+
+2. Install Ionic iOS dependencies
+
+   ```console
+   sudo npm install -g ios-sim
+   sudo npm install -g ios-deploy --unsafe-perm=true
+   ```
+
+3. Create a valid Xcode project to run natively `ionic cordova prepare ios`
+
+4. Modify in `config.xml` file the `widget id="BUNDLE_IDENTIFIER"` value for something unique. For example `io.ionic.yourname` (all lowercase).
+
+5. Open `<APP_NAME>.xcworkspace` file from `platforms/ios` in Xcode. Navigate to `<APP_NAME>(Targets) > Signin & Capabilitites` and include your Apple ID user in `Team` section, checking the `Automatically manage signing` and be sure that the bundle identifier modified in step 4 matches in the `Bundle Identifier` section under it.
+
+6. Compile libraries for iOS `ionic cordova build ios`
+
+_Note: Before running the command Xcode must no complain in the `Signin & Capabilities` section. If any error persists, run `ionic cordova platform remove ios` and try steps 3 to 5 again_
+
+8. Run defualt Xcode emulator `ionic cordova emulate ios -l` or run by Xcode selecting device.
+
+9. To run it in a physical device run `ionic cordova run ios`, with the iPhone connected and unlocked or simply run project from Xcode.
