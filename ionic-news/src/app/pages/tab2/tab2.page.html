@@ -1,0 +1,44 @@
+<ion-header translucent="true" class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-icon
+        name="newspaper"
+        slot="start"
+        class="ion-padding-start"
+      ></ion-icon>
+    </ion-buttons>
+    <ion-title>Explore Categories</ion-title>
+  </ion-toolbar>
+  <ion-segment
+    scrollable
+    value="general"
+    (ionChange)="segmentChanged($event)"
+    mode="md"
+  >
+    <ion-segment-button
+      value="{{category}}"
+      mode="md"
+      *ngFor="let category of categories"
+    >
+      <ion-label text-capitalized>{{category}}</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+</ion-header>
+
+<ion-content [fullscreen]="true" color="dark">
+  <span *ngFor="let article of articles">
+    <app-news-card [article]="article"></app-news-card>
+  </span>
+  <ion-infinite-scroll
+    threshold="25%"
+    [disabled]="false"
+    position="bottom"
+    (ionInfinite)="loadData($event)"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="crescent"
+      loadingText="Loading more news..."
+    >
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

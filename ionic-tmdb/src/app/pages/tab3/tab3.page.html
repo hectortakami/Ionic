@@ -1,0 +1,23 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="dark">
+    <h3 class="ml-3">Mis peliculas favoritas</h3>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" color="dark" class="ion-padding">
+  <span *ngIf="ionicStorage.favoriteMovies.length > 0">
+    <span *ngFor="let genre of categories">
+      <app-slide-poster
+        *ngIf="ionicStorage.favoriteMovies | filterCategory:genre"
+        [movies]="ionicStorage.favoriteMovies | filterCategory:genre"
+        title="{{genre}}"
+        [isSearch]="true"
+      ></app-slide-poster>
+    </span>
+  </span>
+  <ion-slides mode="ios" *ngIf="ionicStorage.favoriteMovies.length <= 0">
+    <ion-slide>
+      <p>Sin peliculas favoritas, aún!</p>
+    </ion-slide>
+  </ion-slides>
+</ion-content>

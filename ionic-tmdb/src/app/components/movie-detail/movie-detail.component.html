@@ -1,0 +1,101 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="dark" mode="ios">
+    <ion-buttons slot="start">
+      <ion-button color="light" (click)="closeModal()">
+        <ion-icon name="arrow-back" class="ml-2"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="dark" *ngIf="movie && movieCredits">
+  <ion-card color="dark">
+    <ion-card-header class="p-0">
+      <ion-img src="{{ movie.backdrop_path | convertImage }}"></ion-img>
+      <ion-card-title>
+        <div class="row">
+          <div class="col-4 ">
+            <ion-img
+              class="poster-relative"
+              src="{{ movie.poster_path | convertImage }}"
+            ></ion-img>
+          </div>
+          <div class="col-8 text-center mb-1">
+            <h3>{{ movie.title }}</h3>
+            <ion-chip class="ml-2" color="light" mode="ios" outline="false">
+              <ion-icon name="star"></ion-icon>
+              <ion-label>{{ movie.vote_average }} / 10</ion-label>
+            </ion-chip>
+            <ion-chip class="ml-2" color="light" mode="ios" outline="false">
+              <ion-icon name="thumbs-up"></ion-icon>
+              <ion-label>{{ movie.vote_count }}</ion-label>
+            </ion-chip>
+          </div>
+        </div>
+      </ion-card-title>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card color="dark">
+    <ion-card-header>
+      <ion-card-subtitle>
+        <h3>Sinópsis</h3>
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <p>{{ movie.overview }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card color="dark">
+    <ion-card-header>
+      <ion-card-subtitle>
+        <h3>Géneros</h3>
+      </ion-card-subtitle>
+      <span>
+        <ion-chip
+          color="primary"
+          mode="ios"
+          outline="true"
+          *ngFor="let genre of movie.genres"
+        >
+          <ion-label>{{ genre.name }}</ion-label>
+        </ion-chip>
+      </span>
+    </ion-card-header>
+  </ion-card>
+
+  <ion-card color="dark">
+    <ion-card-header>
+      <ion-card-subtitle>
+        <h3>Reparto</h3>
+      </ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-slides mode="ios" [options]="slidesOptions">
+        <ion-slide *ngFor="let actor of movieCredits.cast | noEmptyImages">
+          <img src="{{ actor.profile_path | convertImage }}" />
+          <h2>{{ actor.character }}</h2>
+          <p>
+            <b> {{ actor.name }}</b>
+          </p>
+        </ion-slide>
+      </ion-slides>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar color="dark">
+    <ion-buttons slot="end">
+      <ion-button color="secondary" (click)="add2Favorites()" *ngIf="!exists">
+        <ion-label>Añadir a favoritos</ion-label>
+        <ion-icon name="heart-outline" class="ml-2"></ion-icon>
+      </ion-button>
+      <ion-button color="secondary" (click)="add2Favorites()" *ngIf="exists">
+        <ion-label>Quitar de favoritos</ion-label>
+        <ion-icon name="heart" class="ml-2"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>

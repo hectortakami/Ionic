@@ -1,0 +1,27 @@
+<ion-header translucent="true" class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-icon name="star" slot="start" class="ion-padding-start"></ion-icon>
+    </ion-buttons>
+
+    <ion-title>Top News</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" color="dark">
+  <span *ngFor="let article of articles">
+    <app-news-card [article]="article"></app-news-card>
+  </span>
+  <ion-infinite-scroll
+    threshold="25%"
+    [disabled]="false"
+    position="bottom"
+    (ionInfinite)="loadData($event)"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="crescent"
+      loadingText="Loading more news..."
+    >
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

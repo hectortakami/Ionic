@@ -1,0 +1,30 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="dark">
+    <h3 class="ml-3">Buscar pelicula</h3>
+    <ion-searchbar
+      placeholder="Buscar pelicula..."
+      [value]="searchTerm"
+      mode="ios"
+      (ionChange)="onSearchChange($event)"
+      [debounce]="700"
+      animated
+    >
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" color="dark">
+  <app-slide-poster
+    [movies]="searchResults"
+    [isSearch]="true"
+  ></app-slide-poster>
+  <ion-list color="dark" class="p-0">
+    <ion-item
+      color="dark"
+      *ngFor="let result of searchResults"
+      (click)="searchTerm = result.title"
+    >
+      <ion-label>{{result.title}}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

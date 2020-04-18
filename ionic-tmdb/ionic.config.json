@@ -1,0 +1,7 @@
+{
+  "name": "ionic-tmdb",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

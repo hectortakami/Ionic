@@ -1,0 +1,6 @@
+<h3>{{ title }}</h3>
+<ion-slides mode="ios" [options]="slidesOptions">
+  <ion-slide *ngFor="let movie of movies" (click)="movieDetail(movie.id)">
+    <img src="{{ movie.backdrop_path | convertImage }}" />
+  </ion-slide>
+</ion-slides>

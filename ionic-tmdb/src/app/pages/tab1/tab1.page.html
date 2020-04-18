@@ -1,0 +1,22 @@
+<ion-content [fullscreen]="true" color="dark" class="ion-padding">
+  <app-slide-show
+    [movies]="onCinemaMovies"
+    title="Peliculas en cartelera"
+  ></app-slide-show>
+
+  <app-slide-poster
+    [movies]="popularMovies"
+    title="Peliculas populares"
+    (loadMore)="loadOtherPage(0)"
+  ></app-slide-poster>
+  <app-slide-poster
+    [movies]="upcomingMovies"
+    title="Próximos estrenos"
+    (loadMore)="loadOtherPage(1)"
+  ></app-slide-poster>
+  <app-slide-poster
+    [movies]="topRatedMovies"
+    title="Aclamadas por la critica"
+    (loadMore)="loadOtherPage(2)"
+  ></app-slide-poster>
+</ion-content>

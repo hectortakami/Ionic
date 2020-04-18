@@ -1,0 +1,30 @@
+<!-- <a href="{{ article.url }}"> -->
+<ion-card mode="ios" color="dark">
+  <img src="{{ article.urlToImage }}" (click)="openUrl(article.url)" />
+  <div
+    class="row p-0 m-0 mt-2 pl-3 d-flex justify-content-between align-items-center"
+  >
+    <ion-card-subtitle>
+      {{ article.source.name }} |
+      {{ article.publishedAt | date }}
+    </ion-card-subtitle>
+    <ion-button
+      (click)="openSettings()"
+      fill="clear"
+      size="small"
+      color="light"
+      class="p-0 m-0"
+    >
+      <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+    </ion-button>
+  </div>
+  <ion-card-header class="pt-0">
+    <ion-card-title (click)="openUrl(article.url)">
+      <h5>{{ article.title }}</h5>
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    {{ article.description | slice: 0:100 }}...
+  </ion-card-content>
+</ion-card>
+<!-- </a> -->

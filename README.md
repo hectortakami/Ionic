@@ -28,7 +28,47 @@ ionic start < app_name > [ blank | tabs | sidemenu ]
 ionic generate [ page | module | component | service | pipe | guard ] < path >
 ```
 
-## Mobile App Deployment
+## App Deployment
+
+### PWA (Firebase hosting)
+
+1. Setup the Ionic environment as PWA
+   ```console
+   ng add @angular/pwa
+   ionic build --prod --service-worker
+   ```
+2. Setup Firebase Hosting
+   _Firebase options_
+
+   ```console
+   firebase init
+   ```
+
+   - What do you want to use as your public directory? `www`
+   - Configure as a single-page app (rewrite all urls to /index.html)? `Yes`
+   - File www/index.html already exists. Overwrite? `No`
+
+3. Optimize production app
+   _Note: In this link you can generate all sizes `src/assets/icons` for app usage`https://app-manifest.firebaseapp.com/`_
+
+   Modify in `src/index.html` the primary color for toolbar
+
+   ```html
+   <!-- Dark Theme Color -->
+   <meta name="theme-color" content="#222428" />
+   <!-- Light Theme Color -->
+   <meta name="theme-color" content="#f4f5f8" />
+   <!-- For more references go to app/theme/variables/scss -->
+   ```
+
+   ```console
+   ionic build --prod --service-worker
+   ```
+
+4. Deploy project to Firebase
+   ```console
+   firebase deploy
+   ```
 
 ### Android (Google Play Store)
 
@@ -42,7 +82,11 @@ ionic generate [ page | module | component | service | pipe | guard ] < path >
     ionic cordova platform add ios
     ```
 
-## Ionic Color Generator
+## Ionic Components
+
+https://ionicframework.com/docs/components
+
+### Ionic Color Generator
 
 https://ionicframework.com/docs/theming/color-generator
 
@@ -63,10 +107,6 @@ After create a new color schema, insert it or modify it in the `variables.scss` 
   --ion-color-tint: var(--ion-color-VARIABLE-NAME-tint) !important;
 }
 ```
-
-## Ionic Components
-
-https://ionicframework.com/docs/components
 
 ### Ionic Grid
 
@@ -883,6 +923,140 @@ async showToast() {
   }
 ```
 
+## Ionic Plug-ins (Use device native functions)
+
+### In App Browser
+
+The In App Browser plug-in allow the Ionic app to open a new tab on the predefined device browser using an specific url.
+
+```console
+ionic cordova plugin add cordova-plugin-inappbrowser
+npm install @ionic-native/in-app-browser
+```
+
+`app.module.ts`
+
+```typescript
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+// ...
+providers: [
+  // ...
+  InAppBrowser
+];
+```
+
+`in-app-browser.component.ts`
+
+```typescript
+import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+// ...
+constructor(private iab: InAppBrowser) { }
+// ...
+const browser = this.iab.create('https://your_url.com');
+```
+
+### Social Sharing
+
+Includes social sharing methods for a variety of social media to share links, files, send SMS, emails and messages.
+
+```console
+ionic cordova plugin add cordova-plugin-x-socialsharing
+npm install @ionic-native/social-sharing
+```
+
+`app.module.ts`
+
+```typescript
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+// ...
+providers: [
+  // ...
+  SocialSharing
+];
+```
+
+`social-sharing.component.ts`
+
+```typescript
+import { SocialSharing } from '@ionic-native/social-sharing/ngx';
+// ...
+constructor(private socialSharing: SocialSharing) { }
+// ...
+
+// Social media sharing method (The user decides which social network use)
+this.socialSharing.share(
+  // BODY MESSAGE, SUBJECT, FILE?, URL?
+)
+.then(() => {
+  // Success!
+}).catch(() => {
+  // Error!
+});
+```
+
+### Ionic Storage (caché)
+
+Stores locally in the device (cache) data for iOS / Android devices, data is cleared when app is finished.
+
+```console
+ionic cordova plugin add cordova-sqlite-storage
+npm install --save @ionic/storage
+```
+
+`app.module.ts`
+
+```typescript
+import { IonicStorageModule } from '@ionic/storage';
+// ...
+imports: [
+  // ...
+  IonicStorageModule.forRoot()
+];
+```
+
+`data-storage.service.ts`
+
+```typescript
+import { Injectable } from '@angular/core';
+import { Storage } from '@ionic/storage';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DataStorageService {
+
+  public dataArr: DataType[] = [];
+
+  constructor(private storage: Storage) {}
+
+  storeData( item2Store: DataType) {
+    const exists = this.dataArr.find(
+      inStorage => inStorage.<ATRIBUTE_TO_COMPARE> ===  item2Store.<ATRIBUTE_TO_COMPARE>
+    );
+    if (!exists) {
+      this.dataArr.unshift( item2Store);
+      this.storage.set('<KEY>', this.dataArr);
+    }
+  }
+
+  async loadStorage() {
+    const dataInStorage = await this.storage.get('<KEY>');
+    if (dataInStorage) {
+      this.dataArr = dataInStorage;
+    } else {
+      this.dataArr = [];
+    }
+  }
+
+  removeFromStorage(item2Remove: Article) {
+    this.dataArr = this.dataArr.filter(
+      inStorage => inStorage.<ATRIBUTE_TO_COMPARE> !== item2Remove.<ATRIBUTE_TO_COMPARE>
+    );
+    this.storage.set('<KEY>', this.dataArr);
+  }
+}
+```
+
 ## Run iOS
 
 1. Confirm or install XCode command line tools `xcode-select --install`
@@ -907,3 +1081,64 @@ _Note: Before running the command Xcode must no complain in the `Signin & Capabi
 8. Run defualt Xcode emulator `ionic cordova emulate ios -l` or run by Xcode selecting device.
 
 9. To run it in a physical device run `ionic cordova run ios`, with the iPhone connected and unlocked or simply run project from Xcode.
+
+## News API
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { map } from 'rxjs/operators';
+import { ResultTopHeadlines, Article } from '../models/interfaces';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NewsService {
+  apiKey = environment.apiKey;
+  url = 'http://newsapi.org/v2';
+  pageNum = 0;
+  categories = {
+    general: 0,
+    business: 0,
+    health: 0,
+    entertainment: 0,
+    science: 0,
+    sports: 0,
+    technology: 0
+  };
+  actualCategory = 'general';
+
+  constructor(private http: HttpClient) {}
+
+  getTopHeadlines() {
+    this.pageNum++;
+    return this.http
+      .get(
+        `${this.url}/top-headlines?country=us&page=${this.pageNum}&apiKey=${this.apiKey}`
+      )
+      .pipe(
+        map((response: ResultTopHeadlines): Article[] => {
+          return response.articles;
+        })
+      );
+  }
+
+  getNewsByCategory(category: string) {
+    if (this.actualCategory != category) {
+      this.categories[this.actualCategory] = 0;
+      this.actualCategory = category;
+    }
+    const categoryPage = this.categories[this.actualCategory]++;
+    return this.http
+      .get(
+        `${this.url}/top-headlines?country=us&category=${category}&page=${categoryPage}&apiKey=${this.apiKey}`
+      )
+      .pipe(
+        map((response: ResultTopHeadlines): Article[] => {
+          return response.articles;
+        })
+      );
+  }
+}
+```

@@ -1,0 +1,26 @@
+<ion-header translucent="true" class="ion-no-border">
+  <ion-toolbar color="dark">
+    <ion-buttons slot="start">
+      <ion-icon name="heart" slot="start" class="ion-padding-start"></ion-icon>
+    </ion-buttons>
+    <ion-title>Favorite News</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" color="dark">
+  <ion-slides
+    *ngIf="dataStorage.favoriteArticles.length <= 0"
+    color="dark"
+    style="height:100%; width: 100%;"
+  >
+    <ion-slide>
+      No favorite news, yet!
+    </ion-slide>
+  </ion-slides>
+
+  <span *ngIf="dataStorage.favoriteArticles.length > 0">
+    <span *ngFor="let article of dataStorage.favoriteArticles">
+      <app-news-card [article]="article" [inFavorites]="true"></app-news-card>
+    </span>
+  </span>
+</ion-content>

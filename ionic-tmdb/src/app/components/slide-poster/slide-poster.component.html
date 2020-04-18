@@ -1,0 +1,17 @@
+<h3>{{ title }}</h3>
+<ion-slides mode="ios" [options]="slidesOptions">
+  <ion-slide *ngFor="let movie of movies" (click)="movieDetail(movie.id)">
+    <img class="img-fluid" src="{{ movie.poster_path | convertImage }}" />
+  </ion-slide>
+  <ion-slide *ngIf="!isSearch">
+    <ion-fab-button
+      color="tertiary"
+      (click)="onClick()"
+      vertical="center"
+      horizontal="center"
+      slot="fixed"
+    >
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-slide>
+</ion-slides>
