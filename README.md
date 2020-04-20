@@ -28,6 +28,31 @@ ionic start < app_name > [ blank | tabs | sidemenu ]
 ionic generate [ page | module | component | service | pipe | guard ] < path >
 ```
 
+## Run iOS
+
+1. Confirm or install XCode command line tools `xcode-select --install`
+
+2. Install Ionic iOS dependencies
+
+   ```console
+   sudo npm install -g ios-sim
+   sudo npm install -g ios-deploy --unsafe-perm=true
+   ```
+
+3. Create a valid Xcode project to run natively `ionic cordova prepare ios`
+
+4. Modify in `config.xml` file the `widget id="BUNDLE_IDENTIFIER"` value for something unique. For example `io.ionic.yourname` (all lowercase).
+
+5. Open `<APP_NAME>.xcworkspace` file from `platforms/ios` in Xcode. Navigate to `<APP_NAME>(Targets) > Signin & Capabilitites` and include your Apple ID user in `Team` section, checking the `Automatically manage signing` and be sure that the bundle identifier modified in step 4 matches in the `Bundle Identifier` section under it.
+
+6. Compile libraries for iOS `ionic cordova build ios`
+
+_Note: Before running the command Xcode must no complain in the `Signin & Capabilities` section. If any error persists, run `ionic cordova platform remove ios` and try steps 3 to 5 again_
+
+8. Run defualt Xcode emulator `ionic cordova emulate ios -l` or run by Xcode selecting device.
+
+9. To run it in a physical device run `ionic cordova run ios`, with the iPhone connected and unlocked or simply run project from Xcode.
+
 ## App Deployment
 
 ### PWA (Firebase hosting)
@@ -994,9 +1019,9 @@ this.socialSharing.share(
 });
 ```
 
-### Ionic Storage (caché)
+### Ionic Storage
 
-Stores locally in the device (cache) data for iOS / Android devices, data is cleared when app is finished.
+Stores locally in the device data for iOS / Android / Browser devices.
 
 ```console
 ionic cordova plugin add cordova-sqlite-storage
@@ -1057,88 +1082,323 @@ export class DataStorageService {
 }
 ```
 
-## Run iOS
+### Barcode Scanner (QR & Barcode)
 
-1. Confirm or install XCode command line tools `xcode-select --install`
+Uses camera to scan codes, and reads both types. QR & Barcode codes.
 
-2. Install Ionic iOS dependencies
+_IMPORTANT: For iOS setup in the `config.xml` inside of the `<platform name='ios>` section add the following lines to enable the iOS devices use the camera functions in order to work properly_
 
-   ```console
-   sudo npm install -g ios-sim
-   sudo npm install -g ios-deploy --unsafe-perm=true
-   ```
+`config.xml`
 
-3. Create a valid Xcode project to run natively `ionic cordova prepare ios`
+```xml
+<!-- Here goes more configurations in `config.xml` -->
+<platform name="ios">
+  <config-file parent="NSCameraUsageDescription" platform="ios" target="*-Info.plist">
+   <string>You can take photos</string>
+  </config-file>
+  <!-- More things goes here -->
+</platform>
+```
 
-4. Modify in `config.xml` file the `widget id="BUNDLE_IDENTIFIER"` value for something unique. For example `io.ionic.yourname` (all lowercase).
+```console
+ionic cordova plugin add phonegap-plugin-barcodescanner
+npm install @ionic-native/barcode-scanner
+```
 
-5. Open `<APP_NAME>.xcworkspace` file from `platforms/ios` in Xcode. Navigate to `<APP_NAME>(Targets) > Signin & Capabilitites` and include your Apple ID user in `Team` section, checking the `Automatically manage signing` and be sure that the bundle identifier modified in step 4 matches in the `Bundle Identifier` section under it.
+`app.module.ts`
 
-6. Compile libraries for iOS `ionic cordova build ios`
+```typescript
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+// ...
+providers: [
+  // ...
+  BarcodeScanner
+];
+```
 
-_Note: Before running the command Xcode must no complain in the `Signin & Capabilities` section. If any error persists, run `ionic cordova platform remove ios` and try steps 3 to 5 again_
+`scan-data.model.ts`
 
-8. Run defualt Xcode emulator `ionic cordova emulate ios -l` or run by Xcode selecting device.
+_`ScanData` controls the type of scan received from camera QR or Barcode_
 
-9. To run it in a physical device run `ionic cordova run ios`, with the iPhone connected and unlocked or simply run project from Xcode.
+```typescript
+export class ScanData {
+  public format: string;
+  public text: string;
+  public type: string;
+  public icon: string;
+  public created: Date;
 
-## News API
+  constructor(format: string, text: string) {
+    this.format = format;
+    this.text = text;
+    this.created = new Date();
+    this.getScannerType();
+  }
+
+  private getScannerType() {
+    const startingText = this.text.substr(0, 4);
+
+    switch (startingText) {
+      case `http`:
+        this.type = 'web site';
+        this.icon = 'globe';
+        break;
+
+      case `geo:`:
+        this.type = 'map';
+        this.icon = 'compass';
+        break;
+
+      case `BEGI`:
+        if (this.text.startsWith('BEGIN:VEVENT')) {
+          this.type = 'event';
+          this.icon = 'calendar';
+          break;
+        }
+        if (this.text.startsWith('BEGIN:VCARD')) {
+          this.type = 'vcard';
+          this.icon = 'person-circle';
+          break;
+        }
+
+      case `MATM`:
+        this.type = 'email';
+        this.icon = 'mail';
+        break;
+
+      default:
+        this.type = 'text';
+        this.icon = 'text';
+        break;
+    }
+  }
+}
+```
+
+`scan.service.ts`
 
 ```typescript
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { map } from 'rxjs/operators';
-import { ResultTopHeadlines, Article } from '../models/interfaces';
+import { ScanData } from '../models/scan-data';
+import { Storage } from '@ionic/storage';
+import { ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
 })
-export class NewsService {
-  apiKey = environment.apiKey;
-  url = 'http://newsapi.org/v2';
-  pageNum = 0;
-  categories = {
-    general: 0,
-    business: 0,
-    health: 0,
-    entertainment: 0,
-    science: 0,
-    sports: 0,
-    technology: 0
-  };
-  actualCategory = 'general';
+export class ScanService {
+  storedScans: ScanData[] = [];
 
-  constructor(private http: HttpClient) {}
-
-  getTopHeadlines() {
-    this.pageNum++;
-    return this.http
-      .get(
-        `${this.url}/top-headlines?country=us&page=${this.pageNum}&apiKey=${this.apiKey}`
-      )
-      .pipe(
-        map((response: ResultTopHeadlines): Article[] => {
-          return response.articles;
-        })
-      );
+  constructor(private storage: Storage, private toastCtrl: ToastController) {
+    this.storage.get('storedScans').then(register => {
+      this.storedScans = register || [];
+    });
   }
 
-  getNewsByCategory(category: string) {
-    if (this.actualCategory != category) {
-      this.categories[this.actualCategory] = 0;
-      this.actualCategory = category;
+  storeScan(format: string, text: string) {
+    // Stores in local storage all data related to the
+    // Barcode or QR scanning assigning it's type depending of the data coded in it
+    const newScan = new ScanData(format, text);
+    this.storedScans.unshift(newScan);
+    this.storage.set('storedScans', this.storedScans);
+    this.openScan(newScan);
+  }
+
+  openScan(scan: ScanData) {
+    switch (scan.type) {
+      case `web site`:
+        // WEB SITES IMPLEMENTATION
+        break;
+      case `map`:
+        const coordinates = scan.text.substr(4, scan.text.length).split(',');
+        const latitude = coordinates[0];
+        const longitude = coordinates[1];
+        // MAPS IMPLEMENTATION
+        break;
+      case `OTHER_SCAN_TYPE`:
+        // HERE GOES MORE IMPLEMENTATION FOR MORE SCAN TYPES
+        break;
+      default:
+        this.showToast(scan.type);
+        break;
     }
-    const categoryPage = this.categories[this.actualCategory]++;
-    return this.http
-      .get(
-        `${this.url}/top-headlines?country=us&category=${category}&page=${categoryPage}&apiKey=${this.apiKey}`
-      )
-      .pipe(
-        map((response: ResultTopHeadlines): Article[] => {
-          return response.articles;
-        })
-      );
+  }
+
+  async showToast(scanType: string) {
+    const toast = await this.toastCtrl.create({
+      message: `Implementation for '${scanType}' isn't ready, yet!`,
+      duration: 4000,
+      color: 'tertiary',
+      mode: 'ios'
+    });
+    toast.present();
+  }
+}
+```
+
+`scan-reader.component.ts`
+
+```typescript
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { ScanService } from '../../services/scan.service';
+// ...
+export class ScanReader {
+  constructor(
+    private barcodeScanner: BarcodeScanner,
+    private scanService: ScanService
+  ) {}
+
+  // Launch camera with scanner
+  launchScanner() {
+    this.barcodeScanner
+      .scan()
+      .then(barcodeData => {
+        if (!barcodeData.cancelled) {
+          this.scanService.storeScan(barcodeData.format, barcodeData.text);
+        }
+      })
+      .catch(err => {
+        console.log('ERROR: Couldn`t recognize code');
+      });
+  }
+}
+```
+
+### File
+
+https://ionicframework.com/docs/native/file
+
+This plugin implements a File API allowing read/write access to files residing on the device.
+
+```console
+ionic cordova plugin add cordova-plugin-file
+npm install @ionic-native/file
+```
+
+`app.module.ts`
+
+```typescript
+import { File } from '@ionic-native/file/ngx';
+// ...
+providers: [
+  // ...
+  File
+];
+```
+
+`file-system.service.ts`
+
+```typescript
+import { Injectable } from '@angular/core';
+import { File } from '@ionic-native/file/ngx';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class FileSystemService {
+  constructor(private file: File, private emailService: EmailComposerService) {}
+
+  storeFile(fileName: string, fileContent: string) {
+    this.file
+      .checkFile(this.file.dataDirectory, fileName)
+      .then(() => {
+        this._writeOnFile(fileName, fileContent);
+        // HERE GOES ALL ACTIONS WHEN WE HAVE THE FILE PATH
+      })
+      .catch(() => {
+        this.file
+          .createFile(this.file.dataDirectory, fileName, false)
+          .then(() => {
+            this._writeOnFile(fileName, fileContent);
+            // HERE GOES ALL ACTIONS WHEN WE HAVE THE FILE PATH
+          })
+          .catch(() => {
+            console.log('ERROR: File couldn`t be created');
+          });
+      });
+  }
+
+  // Auxiliary function to write/overrite files in system
+  private async _writeOnFile(fileName: string, fileContent: string) {
+    await this.file.writeExistingFile(
+      this.file.dataDirectory,
+      fileName,
+      fileContent
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // FILE CONVERSION
+  // --------------------------------------------------------------------------
+  createCSV(csvData: ObjectType[]) {
+    const tmpArr = [];
+    const csvTitles = 'COLUMN 1,COLUMN 2,...\n';
+    tmpArr.push(csvTitles);
+    csvData.forEach(scan => {
+      const register = `${csvData.ATTRIBUTE_1},${csvData.ATTRIBUTE_2},...\n`;
+      tmpArr.push(register);
+    });
+    return tmpArr.join('');
+  }
+}
+```
+
+### Email Composer
+
+https://ionicframework.com/docs/native/email-composer
+
+Simply email sending plugin. Prepares the email skeleton (to, cc, attatchments, subject, email body) and the sends it to an SMTP mail server.
+
+```console
+ionic cordova plugin add cordova-plugin-email-composer
+npm install @ionic-native/email-composer
+```
+
+`app.module.ts`
+
+```typescript
+import { EmailComposer } from '@ionic-native/email-composer/ngx';
+// ...
+providers: [
+  // ...
+  EmailComposer
+];
+```
+
+`email-composer.service.ts`
+
+```typescript
+import { Injectable } from '@angular/core';
+import { EmailComposer } from '@ionic-native/email-composer/ngx';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class EmailComposerService {
+  constructor(private emailComposer: EmailComposer) {}
+
+  sendMail(
+    to: string[],
+    subject: string,
+    body: string,
+    attatchments?: string[],
+    cc?: string[],
+    bcc?: string[],
+    isHtml: boolean = true
+  ) {
+    let email = {
+      to: to, // Who will receive the mail
+      cc: cc, // Copied emails to the mail
+      bcc: bcc, // This persons will recieve the mail, but will not be notified (background copy)
+      // Here goes all the file references to attatch in mail from file system
+      // Ex. 'file://img/logo.png','file://README.pdf'
+      attachments: attatchments,
+      subject: subject,
+      body: body,
+      isHtml: isHtml // Allow to use HTML code to format email body
+    };
+    // Opens device mail service with the mail set to send
+    this.emailComposer.open(email);
   }
 }
 ```

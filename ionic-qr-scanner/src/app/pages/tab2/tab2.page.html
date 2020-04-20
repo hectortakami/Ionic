@@ -1,0 +1,27 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="cosmic">
+    <ion-buttons slot="primary">
+      <ion-button (click)="sendMail()">
+        <ion-icon slot="icon-only" name="mail"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" color="cosmicBackground">
+  <ion-list color="cosmicBackground" class="ion-no-padding">
+    <ion-item
+      detail
+      color="cosmicBackground"
+      mode="ios"
+      *ngFor="let scan of scannerService.storedScans"
+      (click)="openScan(scan)"
+    >
+      <ion-icon slot="start" [name]="scan.icon"></ion-icon>
+      <ion-label>
+        <h2>{{scan.text}}</h2>
+        <p>{{ scan.created | date }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
