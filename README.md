@@ -778,86 +778,37 @@ The Slides component is a multi-section container. Each section can be swiped or
 `slide.component.html`
 
 ```html
-<ion-content fullscreen class="ion-padding" scroll-y="false">
-  <ion-slides mode="ios" pager="ios">
-    <ion-slide>
-      <div class="slide">
-        <img src="../../../assets/slide-1.png" />
-        <h2>Welcome</h2>
-        <p>
-          The <b>ionic conference app</b> is a practical preview of the ionic
-          framework in action, and a demonstration of proper code use.
-        </p>
-      </div>
-    </ion-slide>
-
-    <ion-slide>
-      <img src="../../../assets/slide-2.png" />
-      <h2>What is Ionic?</h2>
-      <p>
-        <b>Ionic Framework</b> is an open source SDK that enables developers to
-        build high quality mobile apps with web technologies like HTML, CSS, and
-        JavaScript.
-      </p>
-    </ion-slide>
-
-    <ion-slide>
-      <img src="../../../assets/slide-3.png" />
-      <h2>What is Ionic Appflow?</h2>
-      <p>
-        <b>Ionic Appflow</b> is a powerful set of services and features built on
-        top of Ionic Framework that brings a totally new level of app
-        development agility to mobile dev teams.
-      </p>
-    </ion-slide>
-
-    <ion-slide>
-      <img src="../../../assets/slide-4.png" />
-      <h2>Ready to Play?</h2>
-      <ion-button fill="clear"
-        >Continue <ion-icon slot="end" name="arrow-forward"></ion-icon
-      ></ion-button>
-    </ion-slide>
-  </ion-slides>
-</ion-content>
+<ion-slides [options]="slidesOpts" #slidesID>
+  <ion-slide>
+    <!-- All HTML content in slide goes here -->
+  </ion-slide>
+</ion-slides>
 ```
 
-`slide.component.scss`
+`slide.component.ts`
 
-```scss
-ion-slides {
-  height: 100%;
-}
+```typescript
+// Enable more slides per view (not only 1 by 1) as carroussell
+slidesOpts = {
+    slidesPerView: 3.5
+  };
 
-.swiper-slide {
-  display: block;
-}
 
-.swiper-slide h2 {
-  margin-top: 2.8rem;
-}
+// Lock & Move manually
+import { IonSlides } from '@ionic/angular';
+// ...
+@ViewChild('slidesID', { static: true }) mySlides: IonSlides;
 
-.swiper-slide img {
-  max-height: 50%;
-  max-width: 80%;
-  margin: 60px 0 40px;
-  pointer-events: none;
-}
+constructor() {
+  // Disables the possibility to touch and swipe
+    this.mySlides.lockSwipes(true);
+  }
 
-b {
-  font-weight: 500;
-}
-
-p {
-  padding: 0 40px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--ion-color-step-600, #60646b);
-}
-
-p b {
-  color: var(--ion-text-color, #000000);
-}
+moveSlidesManually(slide: number) {
+    this.mySlides.lockSwipes(false);  // Slides must be unlock first
+    this.mySlides.slideTo(slide);     // Slides are ordered as an array [0...n]
+    this.mySlides.lockSwipes(true);   // Re-lock slides
+  }
 ```
 
 ### Split-Pane
@@ -1401,4 +1352,182 @@ export class EmailComposerService {
     this.emailComposer.open(email);
   }
 }
+```
+
+### Geolocation
+
+https://ionicframework.com/docs/native/geolocation
+
+This plugin provides information about the device's location, such as latitude and longitude. Common sources of location information include Global Positioning System (GPS) and location inferred from network signals such as IP address, RFID, WiFi and Bluetooth MAC addresses, and GSM/CDMA cell IDs.
+
+```console
+ionic cordova plugin add cordova-plugin-geolocation
+npm install @ionic-native/geolocation
+```
+
+_Note: For iOS usage add in `config.xml` the following code at the end and before closing `</widget>` tag, to enable a message for the user to allow the location properties_
+
+`config.xml`
+
+```xml
+<!-- ... -->
+
+<!-- Allows the app to use location while ITS IN USE target="NSLocationWhenInUseUsageDescription"-->
+<!-- Allows the app to ALWAYS use the location target="NSLocationAlwaysAndWhenInUseUsageDescription" -->
+  <edit-config file="*-Info.plist" mode="merge" target="NSLocationWhenInUseUsageDescription">
+    <!-- <string>Allow this app to use your location.</string> -->
+    <string>HERE GOES MESSAGE TO DISPLAY WHEN LOCATION IS ASKED (One time only)</string>
+  </edit-config>
+
+<!-- ... -->
+</widget>
+```
+
+`app.module.ts`
+
+```typescript
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+// ...
+providers: [
+  // ...
+  Geolocation
+];
+```
+
+`geolocation.service.ts`
+
+```typescript
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+// ...
+export class GeolocationService {
+  constructor(private geolocation: Geolocation) {}
+
+  getCurrentPosition() {
+    this.geolocation
+      .getCurrentPosition()
+      .then(resp => {
+        // resp.coords.latitude
+        // resp.coords.longitude
+      })
+      .catch(error => {
+        console.log('Error getting location', error);
+      });
+  }
+
+  getRealTimePosition() {
+    let watch = this.geolocation.watchPosition();
+    watch.subscribe(data => {
+      // data can be a set of coordinates, or an error (if an error occurred).
+      // data.coords.latitude
+      // data.coords.longitude
+    });
+  }
+}
+```
+
+### Camera & Photo Gallery (Image Picker)
+
+https://ionicframework.com/docs/native/camera
+https://ionicframework.com/docs/native/image-picker
+
+Enables the camera & photo gallery usage for all type of devices
+
+```console
+ionic cordova plugin add cordova-plugin-camera
+npm install @ionic-native/camera
+
+ionic cordova plugin add cordova-plugin-telerik-imagepicker
+npm install @ionic-native/image-picker
+```
+
+_IMPORTANT: For iOS setup in the `config.xml` inside of the `<platform name='ios>` section add the following lines to enable the iOS devices use the camera functions in order to work properly_
+
+`config.xml`
+
+```xml
+<!-- Here goes more configurations in `config.xml` -->
+<platform name="ios">
+  <config-file parent="NSCameraUsageDescription" platform="ios" target="*-Info.plist">
+    <string>Enable camera access</string>
+  </config-file>
+  <!-- More things goes here -->
+</platform>
+```
+
+`app.module.ts`
+
+```typescript
+import { Camera } from '@ionic-native/camera/ngx';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+// ...
+providers: [Camera, ImagePicker];
+// ...
+```
+
+`picture.service.ts`
+
+```typescript
+import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import { ImagePicker } from '@ionic-native/image-picker/ngx';
+// ...
+export class PictureService {
+  // This is where all the image paths will be stored
+  images: string[] = [];
+
+  constructor(private camera: Camera, private imagePicker: ImagePicker) {}
+
+  takePhoto() {
+    let options: CameraOptions = {
+      quality: 60,
+      destinationType: this.camera.DestinationType.DATA_URL,
+      encodingType: this.camera.EncodingType.JPEG,
+      mediaType: this.camera.MediaType.PICTURE,
+      sourceType: this.camera.PictureSourceType.CAMERA,
+      correctOrientation: true
+    };
+
+    this.camera.getPicture(options).then(
+      imageData => {
+        // URL String with Base64 image path
+        this.images.unshift(`data:image/jpeg;base64,${imageData}`);
+      },
+      err => {
+        // Handle error
+        console.log(err);
+      }
+    );
+  }
+
+  selectFromGallery() {
+    this.imagePicker
+      .getPictures({
+        maximumImagesCount: 5, // Limits the number of images to select
+        outputType: 1
+      })
+      .then(
+        selectedImg => {
+          selectedImg.forEach(selected =>
+            this.images.unshift(`data:image/jpeg;base64,${selected}`)
+          );
+        },
+        err => {
+          // Handle error
+          console.log(err);
+        }
+      );
+  }
+}
+```
+
+## Guards (CanLoad)
+
+This guards prevents the navigation between pages based on LazyLoad
+
+```console
+ionic g guard guards/<guard-name>
+
+Which interfaces would you like to implement?
+  ◯ CanActivate
+  ◯ CanActivateChild
+❯ ◉ CanLoad
 ```
