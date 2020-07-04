@@ -28,7 +28,27 @@ ionic start < app_name > [ blank | tabs | sidemenu ]
 ionic generate [ page | module | component | service | pipe | guard ] < path >
 ```
 
-## Run iOS
+## Device Development (Android & iOS)
+
+### Run Android
+
+1. Setup JDK 8 https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html `java -version` must be `1.8.0_*`
+
+2. Install the Gradle `brew install gradle`, `gradle -v` must be `Gradle 6.5` or higher.
+
+3. Install Android Studio & optionally prepare an Emulator in `Tools > AVD Manager` (but not recommended for RAM usage)
+
+4. Run command `ionic cordova prepare android`
+
+5. Run command `ionic cordova build android`
+
+6. Open the generated android folder located in `platforms/android` with the Android Studio editor and wait until Android Studio processes finish entirely after opening it.
+
+_Note: In case of prompt message `Android Gradle Plugin Update` after open Android Studio project, 1) Decline by `Don't remind me again in this project` or 2) Accept updating the Gradle ( or will be running automatically in the processes below) and run `ionic cordova platform remove android`, then run `brew upgrade gradle` and repeat from step 5._
+
+7. To run app in Android Device must be in Developer mode (Tap 7 times the build number), enable `USB Debugging`, run the command `ionic cordova run --list` to validate the physical device connection and run command `ionic cordova run android` (add `-l` flag to enable live reload)
+
+### Run iOS
 
 1. Confirm or install XCode command line tools `xcode-select --install`
 
@@ -39,13 +59,11 @@ ionic generate [ page | module | component | service | pipe | guard ] < path >
    sudo npm install -g ios-deploy --unsafe-perm=true
    ```
 
-3. Create a valid Xcode project to run natively `ionic cordova prepare ios`
+4) Modify in `config.xml` file the `widget id="BUNDLE_IDENTIFIER"` value for something unique. For example `io.ionic.yourname` (all lowercase).
 
-4. Modify in `config.xml` file the `widget id="BUNDLE_IDENTIFIER"` value for something unique. For example `io.ionic.yourname` (all lowercase).
+5) Open `<APP_NAME>.xcworkspace` file from `platforms/ios` in Xcode. Navigate to `<APP_NAME>(Targets) > Signin & Capabilitites` and include your Apple ID user in `Team` section, checking the `Automatically manage signing` and be sure that the bundle identifier modified in step 4 matches in the `Bundle Identifier` section under it.
 
-5. Open `<APP_NAME>.xcworkspace` file from `platforms/ios` in Xcode. Navigate to `<APP_NAME>(Targets) > Signin & Capabilitites` and include your Apple ID user in `Team` section, checking the `Automatically manage signing` and be sure that the bundle identifier modified in step 4 matches in the `Bundle Identifier` section under it.
-
-6. Compile libraries for iOS `ionic cordova build ios`
+6) Compile libraries for iOS `ionic cordova build ios`
 
 _Note: Before running the command Xcode must no complain in the `Signin & Capabilities` section. If any error persists, run `ionic cordova platform remove ios` and try steps 3 to 5 again_
 
@@ -55,13 +73,36 @@ _Note: Before running the command Xcode must no complain in the `Signin & Capabi
 
 ## App Deployment
 
-### PWA (Firebase hosting)
+### Icon & Splash Screen
+
+1. `npm install -g cordova-res --unsafe-perm=true --allow=root`
+
+2. Run `ionic cordova platform add ios` or `ionic cordova platform add android` to generate the `resources` folder in your Ionic project, then the default `icon.png`, `splash.png` will be generated.
+
+3. Replace each file in the `resources` folder ensuring they both have _The same <name>.png extension_ and _The same size resolution_ (`icon.png`, `1024 x 1024 px`), (`splash.png`, `2732 x 2732 px`)
+
+4. Run command `ionic cordova resources --force` _In case of error `npm remove -g cordova-res` and repeat step 1_
+
+### Bundle ID & App Name
+
+1. Open `config.xml` file and set the next values
+
+   - `<widget id="BUNDLE_IDENTIFIER" version="1.0.0" ...` _The Bundle ID will be set one time to identify the app, must be set as an inverse URL form like 'com.site.appname' with no dashes, spaces or special characters_
+   - `<name> YOUR_APP_NAME </name>`
+   - `<description> YOUR_APP_DESCRIPTION </description>`
+   - `<author email="EMAIL" href="URL">AUTHOR_NAME</author>`
+
+### Platform Deployment
+
+#### PWA (Firebase hosting)
 
 1. Setup the Ionic environment as PWA
+
    ```console
    ng add @angular/pwa
    ionic build --prod --service-worker
    ```
+
 2. Setup Firebase Hosting
    _Firebase options_
 
@@ -95,17 +136,40 @@ _Note: Before running the command Xcode must no complain in the `Signin & Capabi
    firebase deploy
    ```
 
-### Android (Google Play Store)
+#### Android (Google Play Store)
 
-    ```console
-    ionic cordova platform add android
-    ```
+You must have a Google Play Developer Account https://play.google.com/apps/publish and pay \$25 USD (once payment only), a `512 x 512 px icon`, a `1024 x 500 px banner` and a maximun of 8 screenshots `1242 x 2208 px aprox` for Play Store publishing.
 
-### iOS (App Store)
+##### Sign the APK
 
-    ```console
-    ionic cordova platform add ios
-    ```
+1. Build project and generate the `app-release-unsigned.apk` with the command `ionic cordova build android --prod --release`
+   _Recommended: Before uploading to Google Play Store, open the Android Studio generated project (don't update Gradle and wait until processes finish) and test the app in a mobile device. Also you can only type `ionic cordova run android`_
+
+2. Open the Android Studio project generated under `platforms/android` (wait until the processes finish & DON'T UPDATE GRADLE PLUGIN if the message prompts) and navigate to `Build > Generate Signed Bundle or APK > APK > Create new`
+
+3. In `Key store path` select a folder where the SHA key will be generated and encrypted with 2 passwords (one for the Key and other for the Key Store Path) _STORE THE PASSWORDS! They will be asked when updating the app to newer versions_
+
+4. Click next and select `Release` and `V1(JAR Signature)`, click finish and wait until the process is done. The signed APK will be located in the `platforms/android/app/release/app-release.apk` folder.
+
+5. You can move the `app-release.apk` file generated & rename it to keep it close to upload it to the store.
+
+##### Upload to Google Play Store
+
+1. Login to your Google Play Console and click on `My Applications > Add new app` to fill out all the register forms. Add the `512 x 512 px icon`, a `1024 x 500 px banner` and a maximun of 8 screenshots `1242 x 2208 px aprox` at least.
+
+2. Select the app version `Alfa, Beta or Production`, allow Google to manage your signed app key and upload the `Signed APK` generated with the file `app-release.apk` from previous section (can be named differently doesn´t matter). Click Save and Review. _Note: Don't mind if an error or warning occurs (while the green arrow checks the versioning step), continue the step 3._
+
+3. Select the app clasification, full-fill the form and calculate the clasification. _Note: Each updating version this will be required_
+
+4. Select the app pricing, allowed contries and setup all the rest of fields in application content needed.
+
+5. return to the app versioning control to setup the `Testers List`. Your app will be publish after 24hrs verification.
+
+#### iOS (App Store)
+
+1. Edit `config.xml` adding the following line `<preference name = "WKWebViewOnly" value = "true" />`
+
+2. Run commands `ionic cordova plugin rm cordova-plugin-ionic-webview` , `ionic cordova plugin add cordova-plugin-ionic-webview@latest` and `npm install @ionic-native/ionic-webview@latest`
 
 ## Ionic Components
 
@@ -901,6 +965,138 @@ async showToast() {
 
 ## Ionic Plug-ins (Use device native functions)
 
+### Authentication
+
+#### Google Auth Plugin
+
+_Make sure the `config.xml` file has already set an ID `<widget id="com.katana.yourproject"...`_
+
+1. Generate a SHA-1 Key:
+   1. Run `ionic cordova build android`
+   2. Create a new folder named `AndroidKeys` in the `Ionic ROOT PROJECT` to store all the references to the following steps.
+   3. Open the generated Android Studio project from `platforms/android` _wait until processes finish_ and navigate to `Build > Generate Signed Bundle > APK > Key store path > Create New > <your_path_to_AndroidKeys>` and name the file as `masterkey`
+   4. Fill out the fields
+      - `Key store path` _with the path to the `AndroidKeys` folder from previous step_
+      - `Alias` as `masterkey`
+      - `Country code (XX)` as `mx`
+      - And set the 4 times verification of password _`android` lowecased suggested_
+      - Ignore the message warning _'Key was created with errors'_ and close the Android Studio project _The file `masterkey.jks` must be created in `AndroidKeys` folder_
+   5. Run the command `keytool -exportcert -list -v -alias masterkey -keystore your_path_to_project/AndroidKeys/masterkey` and enter the password set in the step 4.
+   6. Copy the genrated `SHA1` key _29:B9:A7:3A:E5:B1:32:18:AB:61:42:7F:9D:5C:3A:C8:63:AC:C4:A1_
+2. In Firebase console enable `Sigin Method > Google` and `Add a new Android App` to the current project using the same `<widget id...` set from the `config.xml` file as Package Name and the generated `SHA1` key to `Register the app`, _You can skip all the rest of configurations recomended by Firebase, in the project settings the SHA1 and Bundle ID for Android must be set up_
+3. In Firebase console `Add a new iOS App` to the current project using the same `<widget id...` set from the `config.xml` file as Package Name, click next and downdload the `GoogleService-Info.plist` file. _Optionally: Create new folder named `iOSKeys` in the `Ionic ROOT PROJECT` to store the files._
+4. Retreive `WEB_APPLICATION_CLIENT_ID` and `REVERSED_CLIENT_ID`:
+   - Navigate to Google Cloud Platform https://console.cloud.google.com/ `your_firebase_project > APIs and Services > Credentials > Web client (auto created by Google Service)` and copy the `Client ID` key. _This will be the `WEB_APPLICATION_CLIENT_ID`_
+     \_ Open the `GoogleService-Info.plist` file to retreive your `REVERSED_CLIENT_ID`
+5. Install the Google Plus Plugin `ionic cordova plugin add cordova-plugin-googleplus --save --variable REVERSED_CLIENT_ID=myreversedclientid --variable WEB_APPLICATION_CLIENT_ID=mywebapplicationclientid` and `npm install @ionic-native/google-plus`
+
+6. Define plugin usage + Angular Fire
+
+`app.module.ts`
+
+```ts
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
+// ...
+  providers: [
+    GooglePlus,
+  // ...
+```
+
+`fire-auth.service.ts`
+
+```typescript
+  async nativeGoogleLogin() {
+    try {
+      const googleUser = await this.google.login({});
+      const response = await this.fireAuth.signInWithCredential(
+        auth.GoogleAuthProvider.credential(null, googleUser.accessToken)
+      );
+      const user: User = {
+        uid: response.user.uid,
+        email: response.user.email,
+        displayName: response.user.displayName,
+        photoURL: response.user.photoURL,
+        phoneNumber: response.user.phoneNumber,
+        address: null,
+        role: null,
+        whatsapp: null
+      };
+      return this.updateUserData(user);
+    } catch (err) {
+      this.presentAlert('Facebook Err', err);
+    }
+  }
+```
+
+7. Test Android
+
+   - Run command `ionic cordova build android --release` to generate an release APK
+   - Sign the key `jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore your_path_to_project/AndroidKeys/masterkey path_to_generated_release/app-release-unsigned.apk masterkey` _Enter the password from step 1.4_
+   - Run `brew cask install android-platform-tools`, then `adb install path_to_generated_release/app-release-unsigned.apk` _In case of error: Uninstall previous version of app, unlock the device and allow USB debugging_ and when finished unistall package with `brew cask uninstall android-platform-tools` in order for Ionic to keep working properly
+     _Note: The Google Login only works with signed APKs, so from now on to test in device you must follow this steps to test and deploy the app. REMEMBER TO RUN `brew cask uninstall android-platform-tools` after testing Google login on Android device_
+
+8. Test iOS
+
+   - Run command `ionic cordova build ios`
+   - Open the generated `.xworkspace` project in Xcode and navigate to `Taget > Info > URL Types`
+   - Add a new URL Type with `Identifier` as `REVERSED_CLIENT_ID` and `URL Scheme` as `value from GoogleService-Info.plist and used while setting up the plugin`
+   - Clean Build `command + K` and re-run the app _You might need to unistall the app from device_
+
+#### Facebook Auth Plugin
+
+1. Create a new app from Facebook Developers site https://developers.facebook.com/
+2. Run `npm install @ionic-native/facebook`
+3. Run the following command changing the `APP_ID` and `APP_NAME` variables `ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID="123456789" --variable APP_NAME="myApplication"`
+4. In the Firebase Console enable `Facebook` as an authentication Method setting up the same `APP_ID` and the `APP_SECRET` provided by the Facebook Developer Console. _Note: Copy the URL provided at the end off the Facebook form to proceed step 5._
+5. Return to the Facebook Developer Console and configure the following:
+   1. Navigate to `Products > Facebook SignIn > Configuration`
+   2. Copy the URL from Firebase in the `URI Callback OAuth Validate` field
+   3. Navigate to `Products > Facebook SignIn > Quick Start`
+   4. Add the Bundle ID from `config.xml` to both `iOS` and `Android` for Facebook SDK
+   5. Authenticate Android
+      5.A. _NO SHA1 Created_ Navigate back to `Products > Facebook SignIn > Configuration > Basic Configuration` and activate the option `Inicio de sesión único` for both `iOS` and `Android` _Aditionally in Android we need to provide a Key Hash from command `keytool -exportcert -alias androiddebugkey -keystore debug.keystore | openssl sha1 -binary | openssl base64` (password: android)_
+      5.B. _SHA1 from Google Plugin_ If you had already created a key, use it from the one stored in the `AndroidKeys` folder. To get more detail see the previous section _step 5_
+6. Define plugin usage + Angular Fire
+
+`app.module.ts`
+
+```ts
+import { Facebook } from '@ionic-native/facebook/ngx';
+// ...
+  providers: [
+    Facebook,
+  // ...
+```
+
+`fire-auth.service.ts`
+
+```typescript
+  async nativeGoogleLogin() {
+    try {
+      const facebookUser = await this.facebook.login(['email']);
+      const response = await this.fireAuth.signInWithCredential(
+        // Use the accessToken from plugin to connect via Angular Fire
+        auth.FacebookAuthProvider.credential(
+          facebookUser.authResponse.accessToken
+        )
+      );
+      const user: User = {
+        uid: response.user.uid,
+        email: response.user.email,
+        displayName: response.user.displayName,
+        photoURL: response.user.photoURL + '?height=500',
+        phoneNumber: response.user.phoneNumber,
+        address: null,
+        role: null,
+        whatsapp: null
+      };
+      return this.updateUserData(user);
+    } catch (err) {
+      this.presentAlert('Facebook Err', err);
+    }
+  }
+```
+
 ### In App Browser
 
 The In App Browser plug-in allow the Ionic app to open a new tab on the predefined device browser using an specific url.
@@ -1517,6 +1713,23 @@ export class PictureService {
       );
   }
 }
+```
+
+### Play Sounds (HowlerJS)
+
+```console
+npm install howler --save
+```
+
+```typescript
+import { Howl } from 'howler';
+
+playSound(sound: string) {
+    var sound = new Howl({
+      src: [`./assets/sounds/${sound}.mp3`]
+    });
+    sound.play();
+  }
 ```
 
 ## Guards (CanLoad)
