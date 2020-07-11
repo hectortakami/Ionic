@@ -987,7 +987,7 @@ _Make sure the `config.xml` file has already set an ID `<widget id="com.katana.y
 3. In Firebase console `Add a new iOS App` to the current project using the same `<widget id...` set from the `config.xml` file as Package Name, click next and downdload the `GoogleService-Info.plist` file. _Optionally: Create new folder named `iOSKeys` in the `Ionic ROOT PROJECT` to store the files._
 4. Retreive `WEB_APPLICATION_CLIENT_ID` and `REVERSED_CLIENT_ID`:
    - Navigate to Google Cloud Platform https://console.cloud.google.com/ `your_firebase_project > APIs and Services > Credentials > Web client (auto created by Google Service)` and copy the `Client ID` key. _This will be the `WEB_APPLICATION_CLIENT_ID`_
-     \_ Open the `GoogleService-Info.plist` file to retreive your `REVERSED_CLIENT_ID`
+   - Open the `GoogleService-Info.plist` file to retreive your `REVERSED_CLIENT_ID`
 5. Install the Google Plus Plugin `ionic cordova plugin add cordova-plugin-googleplus --save --variable REVERSED_CLIENT_ID=myreversedclientid --variable WEB_APPLICATION_CLIENT_ID=mywebapplicationclientid` and `npm install @ionic-native/google-plus`
 
 6. Define plugin usage + Angular Fire
@@ -1044,19 +1044,25 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 #### Facebook Auth Plugin
 
+_Important: A `SHA1` key must be set before start and the project setup with a `Firebase Hosting URL`, if you dont have a SHA1 return to the `Google Auth Plugin (step 1)` to create it_
+
 1. Create a new app from Facebook Developers site https://developers.facebook.com/
-2. Run `npm install @ionic-native/facebook`
-3. Run the following command changing the `APP_ID` and `APP_NAME` variables `ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID="123456789" --variable APP_NAME="myApplication"`
-4. In the Firebase Console enable `Facebook` as an authentication Method setting up the same `APP_ID` and the `APP_SECRET` provided by the Facebook Developer Console. _Note: Copy the URL provided at the end off the Facebook form to proceed step 5._
-5. Return to the Facebook Developer Console and configure the following:
-   1. Navigate to `Products > Facebook SignIn > Configuration`
-   2. Copy the URL from Firebase in the `URI Callback OAuth Validate` field
-   3. Navigate to `Products > Facebook SignIn > Quick Start`
-   4. Add the Bundle ID from `config.xml` to both `iOS` and `Android` for Facebook SDK
-   5. Authenticate Android
-      5.A. _NO SHA1 Created_ Navigate back to `Products > Facebook SignIn > Configuration > Basic Configuration` and activate the option `Inicio de sesión único` for both `iOS` and `Android` _Aditionally in Android we need to provide a Key Hash from command `keytool -exportcert -alias androiddebugkey -keystore debug.keystore | openssl sha1 -binary | openssl base64` (password: android)_
-      5.B. _SHA1 from Google Plugin_ If you had already created a key, use it from the one stored in the `AndroidKeys` folder. To get more detail see the previous section _step 5_
-6. Define plugin usage + Angular Fire
+   1. Enable the `Facebook Login` option in the Products section
+   2. Navigate to `Products > Facebook Login > Web` and add the `URI provided by Firebase` when enable Facebook as a sign-in method, without the `/__/auth/handler` trailing part. _Ex. https://your-project.firebaseapp.com_
+   3. Add in Firebase Console the `App ID` and `App Secret` provided in `Configuration > Basic`
+   4. In Facebook Consoles set the same `App Domain Name`, `Privacy Policy URL` and `Service Conditions URL` as the Firebase Hosting URL including the `https://` header. _In case of error accepting the URL type in Privacy and Service conditions generate one hosted by https://www.freeprivacypolicy.com/ and include the hosted link provided_
+   5. Navigate to `Products > Facebook Login > Configuration` and paste the in the `URI Callback for OAuth` the link provided by Firebase while setting up Facebook _Ex. https://reporte-queretaro-fa913.firebaseapp.com/auth/handler_
+   6. Enable the upper select to `Publish the app` to run over HTTPS production mode _This will work only on HTTPS links, it means that the local environment set by `http://localhost:8100` will not work_
+
+_READ THIS: Now the Facebook Auth needs to run via SSL to work, you'll need to run `ionic serve --ssl` in order to test it´s functionallity_
+
+2. In Facebook Console add a new iOS app under `Products > Facebook Login > Quick Start > iOS`, just set the `Bundle ID` the same as the `config.xml` file and enable the `OAuth Login` option saving the changes.
+3. For Android Setup do the same as the previous step but creating a new Android app and setting up the `Bundle ID` (twice in the package and main class). Additionally you'll be required to encode the `SHA1 -> BASE64` generated in the `Google Auth Plugin (step 1)` with the command `keytool -exportcert -alias masterkey -keystore your_path_to_project/AndroidKeys/masterkey | openssl sha1 -binary | openssl base64` (password: android)`
+4. Install the plugin `npm install @ionic-native/facebook --save` and `ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID="280689389941410" --variable APP_NAME="Reporte Queretaro"` replacing the variables to the one in your Facebook Developer Console project.
+
+_To use the plugin in Android the APK must be signed with the same `masterkey` stored in `AndroidKeys` and the same converted and setup in Facebook as Base64 string_
+
+5. Define plugin usage + Angular Fire
 
 `app.module.ts`
 
