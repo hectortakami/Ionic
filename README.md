@@ -1057,10 +1057,11 @@ _Important: A `SHA1` key must be set before start and the project setup with a `
 _READ THIS: Now the Facebook Auth needs to run via SSL to work, you'll need to run `ionic serve --ssl` in order to test it´s functionallity_
 
 2. In Facebook Console add a new iOS app under `Products > Facebook Login > Quick Start > iOS`, just set the `Bundle ID` the same as the `config.xml` file and enable the `OAuth Login` option saving the changes.
-3. For Android Setup do the same as the previous step but creating a new Android app and setting up the `Bundle ID` (twice in the package and main class). Additionally you'll be required to encode the `SHA1 -> BASE64` generated in the `Google Auth Plugin (step 1)` with the command `keytool -exportcert -alias masterkey -keystore your_path_to_project/AndroidKeys/masterkey | openssl sha1 -binary | openssl base64` (password: android)`
+3. For Android Setup do the same as the previous step but creating a new Android app and setting up the `Bundle ID` (twice in the package and main class). Additionally you'll be required to encode the `SHA1 -> BASE64` generated in the `Google Auth Plugin (step 1)` with the command `keytool -exportcert -alias masterkey -keystore your_path_to_project/AndroidKeys/masterkey | openssl sha1 -binary | openssl base64` (password: android)`_To use the plugin in Android the APK must be signed with the same`masterkey`stored in`AndroidKeys` and the same converted and setup in Facebook as Base64 string\_
+
 4. Install the plugin `npm install @ionic-native/facebook --save` and `ionic cordova plugin add cordova-plugin-facebook4 --variable APP_ID="280689389941410" --variable APP_NAME="Reporte Queretaro"` replacing the variables to the one in your Facebook Developer Console project.
 
-_To use the plugin in Android the APK must be signed with the same `masterkey` stored in `AndroidKeys` and the same converted and setup in Facebook as Base64 string_
+_It´s possible that plugin take effect only by removing platforms and adding/building them again_
 
 5. Define plugin usage + Angular Fire
 
